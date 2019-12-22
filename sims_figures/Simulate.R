@@ -23,21 +23,21 @@ source(here("algorithms/replications/alg1_Vadhan.R"))
 
 ############
 # The function simulate_single() takes up to 7 parameters: 
-#   alg:    Name of the algorithm; 
-#               "pub" - Public Confidence Interval
-#               "priv" - NOISYVAR
-#               "abs" - NOISMAD
-#               "exp" - CENQ
-#               "double" - SYMQ
-#               "med_dev" - MOD
-#               "pub" - Public Confidence Interval
-#   a:      Significance level (set a = 0.05, the function outputs 95% confidence interval).
+#   alg:    Name of the algorithm: 
+#               "pub" - Public Confidence Interval;
+#               "priv" - NOISYVAR;
+#               "abs" - NOISMAD;
+#               "exp" - CENQ;
+#               "double" - SYMQ;
+#               "med_dev" - MOD;
+#               "pub" - Public Confidence Interval;
+#   n:      Sample size;
 #   e:      Privacy parameter epsilon.
-#   xmin:   Given lower bound of the data range.
-#   xmax:   Given upper bound of the data range.
-#   b:      Choice of the lower quantile. The upper quantile will be indicated by 1-b. 
-#           (e.g. If want to use the first and third quartiles, do b = 0.25). Set in default
-#           to the optimized value. 
+#   r:      Upper bound of the data range. The simulation uses range symmetric with respect to 0. 
+#           The lower bound of the data range is set to be -r. 
+#   a:      Significance level (set a = 0.05, the function outputs 95% confidence interval).
+#   ave:    Number of simulations. 
+#   center: The true mean of the normally distributed data. 
 ############
 simulate_single <- function(alg, n, e, r, a, ave, center) {
   moe <- 1:ave
@@ -149,10 +149,28 @@ simulate_single <- function(alg, n, e, r, a, ave, center) {
   return(list(moe = mean(moe), var = var(moe), cov = cov/ave))
 }
 
+
+############
+# The function simulate() takes up to 8 parameters: 
+#   algs:   A vector of names of the algorithm: 
+#               "pub" - Public Confidence Interval;
+#               "priv" - NOISYVAR;
+#               "abs" - NOISMAD;
+#               "exp" - CENQ;
+#               "double" - SYMQ;
+#               "med_dev" - MOD;
+#               "pub" - Public Confidence Interval;
+#   ns:     A vector of sample sizes for simulation;
+#   es:     A vector of privacy parameters for simulation.
+#   ranges: A vector of the upper bounds of the data range. The simulations use ranges symmetric with respect to 0. 
+#           The lower bound of the data range is set to be -ranges. 
+#   as:     A vector of significance levels (set a = 0.05, the function outputs 95% confidence interval).
+#   ave:    Number of simulations for each algorithm. 
+#   cores:  Number of cores for parallel runninng. 
+#   center: The true mean of the normally distributed data. 
 simulate <- function(algs, ns, es, ranges, as, ave, cores = 8L, center = 0) {
   data <- expand.grid(alg = algs, n = ns, e = es, range = ranges, a = as)
   results <- mcmapply(simulate_single, data$alg, data$n, data$e, data$range, data$a, ave, center, mc.cores = cores)
-  # results <- mapply(simulate_single, data$alg, data$n, data$e, data$range, data$a, ave, center)
   data <- bind_cols(data, coverage = as.double(unlist(results["cov",])), var = as.double(unlist(results["var",])), moe = as.double(unlist(results["moe",])))
   return(data)
 }
