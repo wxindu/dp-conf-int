@@ -26,7 +26,7 @@ source(here("algorithms/replications/alg1_Vadhan.R"))
 #   alg:    Name of the algorithm: 
 #               "pub" - Public Confidence Interval;
 #               "priv" - NOISYVAR;
-#               "abs" - NOISMAD;
+#               "abs" - NOISYMAD;
 #               "exp" - CENQ;
 #               "double" - SYMQ;
 #               "med_dev" - MOD;
@@ -155,7 +155,7 @@ simulate_single <- function(alg, n, e, r, a, ave, center) {
 #   algs:   A vector of names of the algorithm: 
 #               "pub" - Public Confidence Interval;
 #               "priv" - NOISYVAR;
-#               "abs" - NOISMAD;
+#               "abs" - NOISYMAD;
 #               "exp" - CENQ;
 #               "double" - SYMQ;
 #               "med_dev" - MOD;
